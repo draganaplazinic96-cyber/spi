@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<title>Plan učenja SPI — checklist</title>
+<style>
+  :root{
+    --bg:#0f1115;
+    --card:#181b22;
+    --border:#2a2f3a;
+    --accent:#6ee7b7;
+    --accent-dim:#2f6f5a;
+    --text:#e7e9ee;
+    --muted:#8a90a0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:24px;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  h1{ font-size:20px; margin:0 0 4px; }
+  .sub{ color:var(--muted); font-size:13px; margin-bottom:20px; }
+  .overall{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:14px 16px; margin-bottom:20px; display:flex; justify-content:space-between;
+    align-items:center; position:sticky; top:12px; z-index:5;
+  }
+  .overall .num{ font-size:22px; font-weight:700; color:var(--accent); }
+  .block{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .block-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; flex-wrap:wrap; gap:6px; }
+  .block-title{ font-weight:600; font-size:15px; }
+  .block-progress{ font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .bar{ height:5px; background:#242833; border-radius:3px; overflow:hidden; margin-bottom:12px; }
+  .bar-fill{ height:100%; background:var(--accent); width:0%; transition:width .2s ease; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(46px,1fr)); gap:6px; }
+  .item{
+    display:flex; align-items:center; justify-content:center; height:38px; border-radius:8px;
+    background:#1f232c; border:1px solid var(--border); cursor:pointer; font-size:13px;
+    user-select:none; transition:background .12s, border-color .12s, color .12s;
+  }
+  .item:hover{ border-color:var(--accent-dim); }
+  .item.checked{ background:var(--accent); color:#0f1115; font-weight:700; border-color:var(--accent); text-decoration:line-through; }
+  .list{ display:flex; flex-direction:column; gap:6px; }
+  .row{
+    display:flex; align-items:center; gap:10px; min-height:42px;
+    border-radius:8px; background:#1f232c; border:1px solid var(--border); cursor:pointer; font-size:13.5px;
+    user-select:none; padding:8px 12px; transition:background .12s, border-color .12s, color .12s;
+  }
+  .row:hover{ border-color:var(--accent-dim); }
+  .row .row-label{ flex:1; }
+  .row.checked{ background:var(--accent); color:#0f1115; border-color:var(--accent); }
+  .row.checked .row-label{ text-decoration:line-through; font-weight:600; }
+  .reset-btn{ background:transparent; border:1px solid var(--border); color:var(--muted); padding:6px 12px; border-radius:8px; font-size:12px; cursor:pointer; }
+  .reset-btn:hover{ border-color:#c0392b; color:#e07a6f; }
+</style>
+</head>
+<body>
+
+<h1>Plan učenja — SPI ispit (1. septembar)</h1>
+<div class="sub">26.8 – 31.8 · klikni da označiš završeno</div>
+
+<div class="overall">
+  <div>
+    <div style="font-size:12px;color:var(--muted);">Ukupan napredak</div>
+    <div class="num" id="overallCount">0 / 0</div>
+  </div>
+  <button class="reset-btn" onclick="resetAll()">Resetuj sve</button>
+</div>
+
+<div id="blocks"></div>
+
+<script>
+const blocks = [
+  {
+    title: "26. avgust — rider, pitanja 1–12",
+    type: "items",
+    items: [
+      { label: "1. Prva faza Drugog svetskog rata 1939-1941" },
+      { label: "2. Druga faza Drugog svetskog rata 1941-1943" },
+      { label: "3. Treća faza Drugog svetskog rata" },
+      { label: "4. Pokreti otpora u Evropi" },
+      { label: "5. Podela Nemačke nakon Drugog svetskog rata" },
+      { label: "6. Stvaranje socijalističkih država u Evropi" },
+      { label: "7. Početak Hladnog rata" },
+      { label: "8. Stvaranje i delatnost Ujedinjenih nacija" },
+      { label: "9. Prve hladnoratovske krize — Iran, Turska i Grčka" },
+      { label: "10. Trumanova doktrina i Maršalov plan" },
+      { label: "11. Stvaranje paktova i trka u naoružanju" },
+      { label: "12. Kineski građanski rat" }
+    ]
+  },
+  {
+    title: "27. avgust — rider, pitanja 13–19",
+    type: "items",
+    items: [
+      { label: "13. Japan pod okupacijom" },
+      { label: "14. Rat u Koreji" },
+      { label: "15. Ajzenhauerova era" },
+      { label: "16. Dekolonizacija nakon Drugog svetskog rata" },
+      { label: "17. Nezavisnost Indije" },
+      { label: "18. Rat na prostoru Indokine (1945-1954)" },
+      { label: "19. Bliski istok i stvaranje Izraela" }
+    ]
+  },
+  {
+    title: "28. avgust — rider, pitanja 20–28",
+    type: "items",
+    items: [
+      { label: "20. Sueska kriza 1956." },
+      { label: "21. SSSR za vreme Nikite Hruščova" },
+      { label: "22. Revolucija u Mađarskoj 1956." },
+      { label: "23. Nastanak Pete republike u Francuskoj" },
+      { label: "24. Integracija Zapadne Evrope i stvaranje EEZ" },
+      { label: "25. Pokret nesvrstanih" },
+      { label: "26. Dekolonizacija Afrike" },
+      { label: "27. Kubanska revolucija i sukobi dve supersile" },
+      { label: "28. Sukobi na Bliskom istoku 60-ih godina" }
+    ]
+  },
+  {
+    title: "29. avgust — rider, pitanja 29–37",
+    type: "items",
+    items: [
+      { label: "29. Kulturna revolucija u Kini" },
+      { label: "30. Detant i ograničavanje trke u naoružanju" },
+      { label: "31. SAD u Vijetnamu" },
+      { label: "32. Studentski protesti" },
+      { label: "33. Istočna politika Vilija Branta" },
+      { label: "34. Sukobi na Bliskom istoku 70-ih godina" },
+      { label: "35. Rat u Avganistanu" },
+      { label: "36. VB za vreme Margaret Tačer" },
+      { label: "37. SAD za vreme Ronalda Regana" }
+    ]
+  },
+  {
+    title: "30. avgust — rider, pitanja 38–45",
+    type: "items",
+    items: [
+      { label: "38. Kraj Hladnog rata" },
+      { label: "39. Amerika 90-ih godina" },
+      { label: "40. Slom socijalizma u Evropi" },
+      { label: "41. Zalivski rat" },
+      { label: "42. Daleki istok 90-ih godina" },
+      { label: "43. Stanje u Evropi 90-ih godina" },
+      { label: "44. Rusija za vreme Borisa Jeljcina" },
+      { label: "45. Bliski istok 90-ih godina" }
+    ]
+  },
+  {
+    title: "31. avgust — ponavljanje svega iz skripte",
+    type: "range",
+    from: 1, to: 45
+  }
+];
+
+let state = {};
+
+function totalCheckable(){
+  let total = 0;
+  blocks.forEach((b) => {
+    if(b.type === "range"){
+      total += (b.to - b.from + 1);
+    } else {
+      total += b.items.length;
+    }
+  });
+  return total;
+}
+
+function render(){
+  const container = document.getElementById('blocks');
+  container.innerHTML = '';
+
+  blocks.forEach((b, bi) => {
+    const blockEl = document.createElement('div');
+    blockEl.className = 'block';
+
+    let checkedCount = 0;
+    let denom = 0;
+
+    if(b.type === "range"){
+      denom = b.to - b.from + 1;
+      for(let n = b.from; n <= b.to; n++){
+        if(state[`b${bi}-n${n}`]) checkedCount++;
+      }
+    } else {
+      denom = b.items.length;
+      b.items.forEach((_, ii) => { if(state[`b${bi}-i${ii}`]) checkedCount++; });
+    }
+
+    const pct = denom ? Math.round((checkedCount / denom) * 100) : 0;
+
+    blockEl.innerHTML = `
+      <div class="block-head">
+        <div class="block-title">${b.title}</div>
+      </div>
+      <div class="block-progress">${checkedCount} / ${denom} završeno</div>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+    `;
+
+    if(b.type === "range"){
+      const grid = document.createElement('div');
+      grid.className = 'grid';
+      for(let n = b.from; n <= b.to; n++){
+        const key = `b${bi}-n${n}`;
+        const item = document.createElement('div');
+        item.className = 'item' + (state[key] ? ' checked' : '');
+        item.textContent = n;
+        item.onclick = () => { state[key] = !state[key]; render(); };
+        grid.appendChild(item);
+      }
+      blockEl.appendChild(grid);
+    } else {
+      const list = document.createElement('div');
+      list.className = 'list';
+      b.items.forEach((it, ii) => {
+        const key = `b${bi}-i${ii}`;
+        const row = document.createElement('div');
+        row.className = 'row' + (state[key] ? ' checked' : '');
+        row.innerHTML = `<span class="row-label">${it.label}</span>`;
+        row.onclick = () => { state[key] = !state[key]; render(); };
+        list.appendChild(row);
+      });
+      blockEl.appendChild(list);
+    }
+
+    container.appendChild(blockEl);
+  });
+
+  const totalChecked = Object.values(state).filter(Boolean).length;
+  document.getElementById('overallCount').textContent = `${totalChecked} / ${totalCheckable()}`;
+}
+
+function resetAll(){
+  state = {};
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
